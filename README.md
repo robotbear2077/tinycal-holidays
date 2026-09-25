@@ -1,6 +1,6 @@
 # tinycal-holidays
 
-给 macOS 菜单栏日历 **[TinyCal（小历）](https://cyanzhong.github.io/tinycal)** 补上最新的中国法定节假日和调休数据。
+给 macOS 菜单栏日历 **[TinyCal（小历）](https://apps.apple.com/cn/app/id1114272557)** 补上最新的中国法定节假日和调休数据。
 
 TinyCal 很久没更新了，内置的节假日数据只到 **2022 年**。从 2023 年起，日历上既不显示「休」，也不显示「班」。这个脚本不修改 app 本体，只改写 TinyCal 自己的缓存文件，把最新的放假安排补进去。
 
@@ -103,7 +103,7 @@ TinyCal 的节假日数据是在 `TinyKit.framework` 里写死的 `NSDictionary`
 
 ## 致谢
 
-- [TinyCal](https://cyanzhong.github.io/tinycal)，作者 [@cyanzhong](https://github.com/cyanzhong)
+- [TinyCal](https://apps.apple.com/cn/app/id1114272557)，作者 [@cyanzhong](https://github.com/cyanzhong)
 - [NateScarlet/holiday-cn](https://github.com/NateScarlet/holiday-cn)，提供中国法定节假日数据
 
 ## License
