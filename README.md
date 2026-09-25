@@ -14,6 +14,15 @@ $ tinycal-holidays
 已重启 TinyCal。
 ```
 
+> [!TIP]
+> **系统比较新的话，建议直接用 [LunarBar](#推荐lunarbar)。** 它是 TinyCal 作者后来开发的开源菜单栏日历，一直在维护，自带公共假日数据，不需要这个脚本。
+
+## 背景
+
+我翻出一台旧 Mac 给家人用。它的系统版本太低，装不了 LunarBar 的最新版，只好先用 TinyCal。可是 TinyCal 早就停止更新，放假和调休都不显示，家人看日历时很不方便。
+
+研究后发现，TinyCal 会把每个月的日历数据缓存成本地文件，节假日就记在这些缓存里。改写缓存就能补上新的节假日，于是有了这个小脚本。如果你也有一台跑不了新软件的旧 Mac，希望它能帮上忙。
+
 ## 特点
 
 - **不改 app 本体**：不动二进制，不重新签名，也不注入代码。App Store 版可以直接用，更新 TinyCal 也不受影响。
@@ -101,9 +110,26 @@ TinyCal 的节假日数据是在 `TinyKit.framework` 里写死的 `NSDictionary`
 - 需要联网访问 jsDelivr 或 GitHub。
 - 测试环境：TinyCal 1.17.5（App Store 版，Bundle ID `app.cyan.tinycalx`），macOS 13。其他版本如果缓存路径或格式不同，可能用不了。
 
+## 推荐：LunarBar
+
+[![LunarBar](https://img.shields.io/github/stars/LunarBar-app/LunarBar?style=social)](https://github.com/LunarBar-app/LunarBar)
+
+**[LunarBar](https://github.com/LunarBar-app/LunarBar)** 是 TinyCal 作者 [@cyanzhong](https://github.com/cyanzhong) 开发的新一代菜单栏日历，**完全免费、开源**。它支持农历、公共假日、系统日历和提醒事项，设计极简，一直在持续维护。它是沙盒应用，经过签名和 Apple 公证，安全性不用担心。
+
+在较新的 macOS 上，**直接用 LunarBar 更好**：节假日数据由官方维护，不需要这种 hack。
+
+| 你的系统 | 推荐 |
+|---|---|
+| macOS 15 及以上 | [LunarBar 最新版](https://github.com/LunarBar-app/LunarBar/releases/latest)，或 `brew install --cask lunarbar` |
+| macOS 14 | LunarBar 兼容版：[macos-14](https://github.com/LunarBar-app/LunarBar/releases/tag/macos-14) |
+| macOS 13 | LunarBar 兼容版：[macos-13](https://github.com/LunarBar-app/LunarBar/releases/tag/macos-13) |
+| 更老的系统 | TinyCal + 本脚本 |
+
+> 兼容版是停在对应系统上的旧版本，不再加新功能。
+
 ## 致谢
 
-- [TinyCal](https://apps.apple.com/cn/app/id1114272557)，作者 [@cyanzhong](https://github.com/cyanzhong)
+- [TinyCal](https://apps.apple.com/cn/app/id1114272557) 和 [LunarBar](https://github.com/LunarBar-app/LunarBar)，作者 [@cyanzhong](https://github.com/cyanzhong)
 - [NateScarlet/holiday-cn](https://github.com/NateScarlet/holiday-cn)，提供中国法定节假日数据
 
 ## License
