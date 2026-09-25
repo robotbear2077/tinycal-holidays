@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""给 TinyCal 的月份缓存补上中国法定节假日/调休数据。
+
+TinyCal 把每个月的日历数据缓存在
+  ~/Library/Containers/app.cyan.tinycalx/Data/Documents/calendars/<年>.<月>.<周起始> (<语言>)
+每一天有个 worktime 字段：0=普通，1=调休上班，2=放假。app 内置数据只到 2022 年，
+这里用 NateScarlet/holiday-cn 的数据改写缓存里的 worktime。
+
+用法：
+  tinycal-holidays                补丁并自动重启 TinyCal
+  tinycal-holidays --no-restart   只补丁，不重启
+  tinycal-holidays --restore      从备份还原原始缓存
+"""
+import json
+import plistlib
+import re
+import shutil
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+CACHE_DIR = Path.home() / "Library/Containers/app.cyan.tinycalx/Data/Documents/calendars"
+BACKUP_DIR = CACHE_DIR.with_name("calendars.bak")
+SOURCES = [
+    "https://cdn.jsdelivr.net/gh/NateScarlet/holiday-cn@master/{year}.json",
+    "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/{year}.json",
+]
+FILE_RE = re.compile(r"^(\d{4})\.(\d{1,2})\.\d+ \(.+\)$")
+HOLIDAY, WORKDAY, NORMAL = 2, 1, 0
+
+
+def fetch_year(year):
+    """返回 {"YYYY-MM-DD": worktime}；官方未发布返回 {}，网络失败返回 None。"""
+    for url in SOURCES:
+        try:
+            with urllib.request.urlopen(url.format(year=year), timeout=15) as r:
+                data = json.load(r)
+            return {d["date"]: HOLIDAY if d["isOffDay"] else WORKDAY for d in data.get("days", [])}
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return {}
+        except Exception:
+            continue
+    return None
+
+
+def restart_tinycal():
+    subprocess.run(["osascript", "-e", 'quit app "TinyCal"'], capture_output=True)
+    time.sleep(2)
+    subprocess.run(["open", "-a", "TinyCal"])
+    print("已重启 TinyCal。")
+
+
+def restore():
+    if not BACKUP_DIR.is_dir():
+        sys.exit(f"没有找到备份：{BACKUP_DIR}")
+    shutil.rmtree(CACHE_DIR, ignore_errors=True)
+    shutil.copytree(BACKUP_DIR, CACHE_DIR)
+    print(f"已从 {BACKUP_DIR} 还原缓存。")
+
+
+def patch():
+    if not CACHE_DIR.is_dir():
+        sys.exit(f"找不到缓存目录：{CACHE_DIR}\n先打开一次 TinyCal 再试。")
+
+    files = [f for f in CACHE_DIR.iterdir() if FILE_RE.match(f.name)]
+    # 每个月的文件会带上前后月的日期，所以要把相邻年份也拉下来
+    years = set()
+    for f in files:
+        y = int(FILE_RE.match(f.name).group(1))
+        years.update({y - 1, y, y + 1})
+
+    table = {}
+    for y in sorted(years):
+        days = fetch_year(y)
+        if days:
+            table.update(days)
+            print(f"{y}: 已获取 {len(days)} 条节假日/调休")
+        elif days == {}:
+            print(f"{y}: 官方尚未发布")
+        else:
+            print(f"{y}: 获取失败（网络问题？）")
+    fetched_years = {int(k[:4]) for k in table}
+    if not fetched_years:
+        sys.exit("没拿到任何节假日数据，未做修改。")
+
+    if not BACKUP_DIR.exists():
+        shutil.copytree(CACHE_DIR, BACKUP_DIR)
+        print(f"已备份原缓存到 {BACKUP_DIR}")
+
+    changed = 0
+    for f in files:
+        with open(f, "rb") as fp:
+            cal = plistlib.load(fp)
+        dirty = False
+        for day in cal.get("monthData", []):
+            if day["year"] not in fetched_years:
+                continue  # 没有数据的年份保持原样
+            key = f"{day['year']:04d}-{day['month']:02d}-{day['day']:02d}"
+            want = table.get(key, NORMAL)
+            if day.get("worktime") != want:
+                day["worktime"] = want
+                dirty = True
+        if dirty:
+            with open(f, "wb") as fp:
+                plistlib.dump(cal, fp)
+            changed += 1
+    print(f"共 {len(files)} 个月份缓存，修改了 {changed} 个。")
+    return changed
+
+
+def main():
+    if "--restore" in sys.argv:
+        restore()
+        changed = True
+    else:
+        changed = patch()
+    if changed and "--no-restart" not in sys.argv:
+        restart_tinycal()
+
+
+if __name__ == "__main__":
+    main()
