@@ -127,9 +127,11 @@ TinyCal 的节假日数据是在 `TinyKit.framework` 里写死的 `NSDictionary`
 
 > 兼容版是停在对应系统上的旧版本，不再加新功能。
 
+作者的更多免费开源 Mac 应用（例如 Markdown 编辑器 MarkEdit）都收录在 **[LibreMac](https://libremac.github.io/)**，推荐去看看。
+
 ## 致谢
 
-- [TinyCal](https://apps.apple.com/cn/app/id1114272557) 和 [LunarBar](https://github.com/LunarBar-app/LunarBar)，作者 [@cyanzhong](https://github.com/cyanzhong)
+- [TinyCal](https://apps.apple.com/cn/app/id1114272557) 和 [LunarBar](https://github.com/LunarBar-app/LunarBar)，作者 [@cyanzhong](https://github.com/cyanzhong)（[LibreMac](https://libremac.github.io/)）
 - [NateScarlet/holiday-cn](https://github.com/NateScarlet/holiday-cn)，提供中国法定节假日数据
 
 ## License
